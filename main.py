@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template, redirect, url_for, flash, send_from_directory
 import os
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 app = Flask(__name__)
 app.secret_key = 'a20a90eb88d6db187d558a3c'
@@ -7,7 +8,54 @@ app.secret_key = 'a20a90eb88d6db187d558a3c'
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# Configure Flask-Login
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
+
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+class User(UserMixin):
+    def __init__(self, username):
+        self.id = username
+
+# Mock user database (replace with a proper database in a real application)
+users = {'user1': {'username': 'user1', 'password': 'password1'},
+         'user2': {'username': 'user2', 'password': 'password2'}}
+
+@login_manager.user_loader
+def load_user(user_id):
+    user_data = users.get(user_id)
+    if user_data:
+        user = User(user_data['username'])
+        return user
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        user_data = users.get(username)
+        if user_data and password == user_data['password']:
+            user = User(username)
+            login_user(user)
+            flash('Login successful!', 'success')
+            return redirect(url_for('index'))
+
+        flash('Invalid username or password', 'error')
+
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Logged out successfully', 'success')
+    return redirect(url_for('login'))
+
 @app.route('/')
+@login_required
 def index():
     folders = os.listdir(app.config['UPLOAD_FOLDER'])
     return render_template('index.html', folders=folders)
