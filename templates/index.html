@@ -6,10 +6,65 @@
     <title>File Upload</title>
 </head>
 <body>
-    <h1>File Upload</h1>
-    <form action="/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".zip">
+    <h1 class="file-upload">File Upload</h1>
+    <hr>
+    <form action="/upload" method="post" enctype="multipart/form-data" class="upload">
+        <input type="file" name="file" accept=".zip" class="choose">
         <input type="submit" value="Upload">
     </form>
+
+    <h1>Available Files</h1>
+    <ul>
+        {% for folder in folders %}
+            <li>
+                {{ folder }}
+                <a href="{{ url_for('download_file', filename=folder) }}" download>Download</a>
+            </li>
+        {% endfor %}
+    </ul>
 </body>
 </html>
+<style>
+body {
+	background-color: rgb(112, 113,  232);
+	}
+.file-upload {
+		margin-top: 80px;
+		text-align: center;
+		color: white;
+		}
+.upload {
+	margin-top: 60px;
+    }
+input[type=submit] {
+  width: 200px;
+  height: 80px;
+  background-color: #1640D6;
+  color: white;
+  display: block;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 20px;
+  margin-left: 400px;
+  font-size: 40px;
+}
+.choose {
+  height: 40px;
+  background-color: #0174BE;
+  color: white;
+  display: block;
+  margin: 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 300px;
+  margin-left: 280px;
+  transition: 1.2s;
+  font-size: 28px;
+  }
+  input[type=submit]:hover {
+  	opacity: 0.8;
+  }
+</style>
